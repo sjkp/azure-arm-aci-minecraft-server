@@ -48,11 +48,8 @@
         }
     },
     "variables": {
-        "image": "microsoft/azure-cli",
-        "cpuCores": "1.0",
-        "memoryInGb": "1.5",
-        "containerGroupName": "createshare-containerinstance",
-        "containerName": "createshare",
+        "cpuCores": 1,
+        "memoryInGb": 2,
         "minecractContainerGroupName": "minecraft",
         "minecraftContainerName": "mc",
         "minecraftContainerImage": "itzg/minecraft-server",
@@ -70,52 +67,15 @@
             },
             "kind": "Storage",
             "properties": {}
-        },
+        }, 
         {
-            "name": "[variables('containerGroupName')]",
-            "type": "Microsoft.ContainerInstance/containerGroups",
-            "apiVersion": "2018-02-01-preview",
-            "location": "[parameters('containerInstanceLocation')]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-04-01",
+            "name": "[concat(parameters('storageAccountName'), '/default/', variables('fileShareName'))]",
             "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
-            ],
-            "properties": {
-                "containers": [
-                    {
-                        "name": "[variables('containerName')]",
-                        "properties": {
-                            "image": "[variables('image')]",
-                            "command": [
-                                "az",
-                                "storage",
-                                "share",
-                                "create",
-                                "--name",
-                                "[variables('fileShareName')]"
-                            ],
-                            "environmentVariables": [
-                                {
-                                    "name": "AZURE_STORAGE_KEY",
-                                    "value": "[listKeys(parameters('storageAccountName'),'2017-10-01').keys[0].value]"
-                                },
-                                {
-                                    "name": "AZURE_STORAGE_ACCOUNT",
-                                    "value": "[parameters('storageAccountName')]"
-                                }
-                            ],
-                            "resources": {
-                                "requests": {
-                                    "cpu": "[variables('cpuCores')]",
-                                    "memoryInGb": "[variables('memoryInGb')]"
-                                }
-                            }
-                        }
-                    }
-                ],
-                "restartPolicy": "OnFailure",
-                "osType": "Linux"
-            }
-        },
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ]
+        },      
         {
             "type": "Microsoft.ContainerInstance/containerGroups",
             "name": "[variables('minecractContainerGroupName')]",
@@ -135,8 +95,8 @@
                             ],
                             "resources": {
                                 "requests": {
-                                    "cpu": 2,
-                                    "memoryInGB": 2
+                                    "cpu": "[variables('cpuCores')]",
+                                    "memoryInGB": "[variables('memoryInGb')]"
                                 }
                             },
                             "ports": [
