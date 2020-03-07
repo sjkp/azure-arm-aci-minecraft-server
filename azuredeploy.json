@@ -45,15 +45,26 @@
             "metadata": {
                 "description": "Location for all resources."
             }
+        },
+        "gamemode":{
+            "type":"string",
+            "defaultValue": "survival",
+            "allowedValues": ["survival", "creative", "adventure "]
+        },
+        "serverType":{
+            "type":"string",
+            "defaultValue":"minecraft-bedrock-server",
+            "allowedValues":["minecraft-bedrock-server", "minecraft-server"]
         }
+        
+
     },
     "variables": {
         "cpuCores": 1,
         "memoryInGb": 2,
         "minecractContainerGroupName": "minecraft",
         "minecraftContainerName": "mc",
-        "minecraftContainerImage": "itzg/minecraft-server",
-        "minecraftContainerImageBedrock": "itzg/minecraft-bedrock-server",
+        "minecraftContainerImage": "[concat('itzg/',parameters('serverType'))]",        
         "fileShareName": "data"
     },
     "resources": [
@@ -86,11 +97,15 @@
                     {
                         "name": "[variables('minecraftContainerName')]",
                         "properties": {
-                            "image": "[variables('minecraftContainerImageBedrock')]",
+                            "image": "[variables('minecraftContainerImage')]",
                             "environmentVariables": [
                                 {
                                     "name": "EULA",
                                     "value": "TRUE"
+                                },
+                                {
+                                    "name": "GAMEMODE",
+                                    "value": "[parameters('gamemode')]"
                                 }
                             ],
                             "resources": {
